@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Upload RIS Files - RIS Reference Sorter{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="text-center mb-5">
+            <h1 class="display-4"><i class="fas fa-upload me-3"></i>RIS Reference Sorter</h1>
+            <p class="lead">Upload your RIS files to automatically sort and format academic references</p>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body">
+                <!-- Current References Status -->
+                <div id="currentRefsStatus" class="alert alert-info" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span id="currentRefsText">You have references loaded from previous uploads</span>
+                        </div>
+                        <form action="{{ url_for('clear_references') }}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Are you sure you want to clear all current references?')">
+                                <i class="fas fa-trash me-1"></i>Clear All
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('upload_files') }}" method="post" enctype="multipart/form-data"
+                    id="uploadForm">
+                    <div class="drag-drop-area" id="dragDropArea">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                        <h4>Drag & Drop RIS Files Here</h4>
+                        <p class="text-muted">or click to browse files</p>
+                        <input type="file" id="fileInput" name="files" multiple accept=".ris,.txt" class="d-none">
+                        <button type="button" class="btn btn-primary"
+                            onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse Files
+                        </button>
+                    </div>
+
+                    <div id="fileList" class="mt-3" style="display: none;">
+                        <h6>Selected Files:</h6>
+                        <ul id="selectedFiles" class="list-group"></ul>
+                    </div>
+
+                    <!-- Upload Mode Selection -->
+                    <div id="uploadOptions" class="mt-3" style="display: none;">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-cogs me-2"></i>Upload Options</h6>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="merge_mode" id="newMode"
+                                        value="new" checked>
+                                    <label class="form-check-label" for="newMode">
+                                        <strong>Start Fresh</strong> - Replace all current references with new uploads
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="merge_mode" id="mergeMode"
+                                        value="merge">
+                                    <label class="form-check-label" for="mergeMode">
+                                        <strong>Merge with Current</strong> - Add new references to existing collection
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <button type="submit" class="btn btn-success btn-lg" id="uploadBtn" disabled>
+                            <i class="fas fa-sort-alpha-down me-2"></i>Upload & Sort References
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-file-upload fa-2x text-primary mb-3"></i>
+                        <h5>Upload Multiple Files</h5>
+                        <p class="text-muted">Support for multiple RIS files at once</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-sort-alpha-down fa-2x text-success mb-3"></i>
+                        <h5>Auto-Sort References</h5>
+                        <p class="text-muted">Automatically sorted alphabetically by author</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-layer-group fa-2x text-warning mb-3"></i>
+                        <h5>Merge Collections</h5>
+                        <p class="text-muted">Merge new uploads with existing references or start fresh</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <h6><i class="fas fa-info-circle me-2"></i>Supported Formats:</h6>
+            <ul class="mb-0">
+                <li><strong>.ris</strong> - Research Information Systems format</li>
+                <li><strong>.txt</strong> - Plain text RIS files</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dragDropArea = document.getElementById('dragDropArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const selectedFiles = document.getElementById('selectedFiles');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadOptions = document.getElementById('uploadOptions');
+        const currentRefsStatus = document.getElementById('currentRefsStatus');
+        const currentRefsText = document.getElementById('currentRefsText');
+
+        // Check current references status on page load
+        checkCurrentReferences();
+
+        function checkCurrentReferences() {
+            fetch('/current_stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.has_references) {
+                        currentRefsText.textContent = `You currently have ${data.count} references loaded`;
+                        currentRefsStatus.style.display = 'block';
+                    } else {
+                        currentRefsStatus.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking current references:', error);
+                });
+        }
+
+        // Drag and drop functionality
+        dragDropArea.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            dragDropArea.classList.add('dragover');
+        });
+
+        dragDropArea.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            dragDropArea.classList.remove('dragover');
+        });
+
+        dragDropArea.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dragDropArea.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            fileInput.files = files;
+            displayFiles(files);
+        });
+
+        // Click to upload
+        dragDropArea.addEventListener('click', function () {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function () {
+            displayFiles(this.files);
+        });
+
+        function displayFiles(files) {
+            if (files.length > 0) {
+                fileList.style.display = 'block';
+                uploadOptions.style.display = 'block';
+                selectedFiles.innerHTML = '';
+
+                Array.from(files).forEach(function (file) {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    li.innerHTML = `
+                    <div>
+                        <i class="fas fa-file-alt me-2"></i>
+                        ${file.name}
+                    </div>
+                    <span class="badge bg-secondary">${(file.size / 1024).toFixed(1)} KB</span>
+                `;
+                    selectedFiles.appendChild(li);
+                });
+
+                uploadBtn.disabled = false;
+
+                // Update button text based on selection
+                updateUploadButtonText();
+            } else {
+                fileList.style.display = 'none';
+                uploadOptions.style.display = 'none';
+                uploadBtn.disabled = true;
+            }
+        }
+
+        function updateUploadButtonText() {
+            const mergeMode = document.querySelector('input[name="merge_mode"]:checked').value;
+            const fileCount = fileInput.files.length;
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            if (mergeMode === 'merge') {
+                uploadBtn.innerHTML = `<i class="fas fa-plus me-2"></i>Merge ${fileCount} File${fileCount > 1 ? 's' : ''} & Sort`;
+            } else {
+                uploadBtn.innerHTML = `<i class="fas fa-sort-alpha-down me-2"></i>Upload ${fileCount} File${fileCount > 1 ? 's' : ''} & Sort`;
+            }
+        }
+
+        // Update button text when radio button changes
+        document.addEventListener('change', function (e) {
+            if (e.target.name === 'merge_mode') {
+                updateUploadButtonText();
+            }
+        });
+
+        // Form submission
+        document.getElementById('uploadForm').addEventListener('submit', function () {
+            const mergeMode = document.querySelector('input[name="merge_mode"]:checked').value;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            uploadBtn.disabled = true;
+        });
+    });
+</script>
+{% endblock %}

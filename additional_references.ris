@@ -1,0 +1,50 @@
+TY  - JOUR
+AU  - Wilson, Sarah
+AU  - Martinez, Carlos
+TI  - Advanced Image Segmentation Using U-Net Architecture
+JO  - Computer Vision and Image Understanding
+VL  - 156
+SP  - 78
+EP  - 92
+PY  - 2024
+DO  - 10.1016/j.cviu.2024.078
+ER  - 
+
+TY  - CONF
+AU  - Roberts, Emily
+AU  - Singh, Raj
+TI  - Transformer-Based Models for Medical Image Classification
+BT  - IEEE Conference on Computer Vision and Pattern Recognition
+SP  - 1234
+EP  - 1242
+PY  - 2024
+DO  - 10.1109/CVPR.2024.1234
+ER  - 
+
+TY  - JOUR
+AU  - Chen, David
+AU  - Liu, Amanda
+AU  - Johnson, Michael
+TI  - Explainable AI in Radiology: A Comprehensive Survey
+JO  - Artificial Intelligence in Medicine
+VL  - 98
+SP  - 101456
+PY  - 2024
+DO  - 10.1016/j.artmed.2024.101456
+ER  - 
+
+TY  - BOOK
+AU  - Peterson, Karen
+TI  - Deep Learning for Medical Imaging: Theory and Practice
+PB  - MIT Press
+CY  - Cambridge
+PY  - 2024
+SN  - 978-0262045123
+ER  - 
+
+TY  - THES
+AU  - Rodriguez, Miguel
+TI  - Automated Diagnosis of Skin Cancer Using Deep Convolutional Networks
+PB  - University of California, Berkeley
+PY  - 2023
+ER  - 

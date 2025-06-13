@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Sorted References - RIS Reference Sorter{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-check-circle text-success me-2"></i>References Processed Successfully</h1>
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                    <i class="fas fa-plus me-2"></i>Add More Files
+                </a>
+                <form action="{{ url_for('clear_references') }}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-outline-danger"
+                        onclick="return confirm('Are you sure you want to clear all references and start fresh?')">
+                        <i class="fas fa-trash me-1"></i>Clear All
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Operation Mode Alert -->
+        {% if stats.operation_mode == 'merged' %}
+        <div class="alert alert-success mb-4">
+            <h6 class="mb-2"><i class="fas fa-merge me-2"></i>References Merged Successfully!</h6>
+            <p class="mb-0">
+                Added <strong>{{ stats.new_references_count }}</strong> new references to your existing collection of
+                <strong>{{ stats.existing_references_count }}</strong> references.
+                Total unique references: <strong>{{ stats.unique_references }}</strong>
+            </p>
+        </div>
+        {% else %}
+        <div class="alert alert-info mb-4">
+            <h6 class="mb-2"><i class="fas fa-upload me-2"></i>New Reference Collection Created!</h6>
+            <p class="mb-0">
+                Processed <strong>{{ stats.new_references_count }}</strong> references from
+                <strong>{{ stats.total_files }}</strong> file{{ 's' if stats.total_files > 1 else '' }}.
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Statistics Card -->
+        <div class="card stats-card mb-4">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h3 class="mb-1">{{ stats.total_files }}</h3>
+                        <p class="mb-0"><i class="fas fa-file-alt me-1"></i>Files Processed</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="mb-1">{{ stats.unique_references }}</h3>
+                        <p class="mb-0"><i class="fas fa-list me-1"></i>Total References</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="mb-1">{{ stats.duplicates_removed }}</h3>
+                        <p class="mb-0"><i class="fas fa-trash me-1"></i>Duplicates Removed</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="mb-1">{{ stats.new_references_count }}</h3>
+                        <p class="mb-0"><i class="fas fa-plus me-1"></i>{% if stats.operation_mode == 'merged' %}Added{%
+                            else %}New{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Controls -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-download me-2"></i>Export Options</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="exportFormat" class="form-label">Export Format:</label>
+                        <select id="exportFormat" class="form-select">
+                            <option value="text">Plain Text (Double Line Breaks)</option>
+                            <option value="numbered">Numbered List</option>
+                            <option value="markdown">Markdown Format</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button class="btn btn-success me-2" onclick="copyAllReferences()">
+                            <i class="fas fa-copy me-1"></i>Copy All References
+                        </button>
+                        <button class="btn btn-info" onclick="downloadReferences()">
+                            <i class="fas fa-download me-1"></i>Download as File
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processed Files Info -->
+        {% if stats.processed_files %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Processed Files</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for file in stats.processed_files %}
+                    <div class="col-md-4 mb-2">
+                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ file }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Errors -->
+        {% if stats.errors %}
+        <div class="alert alert-warning">
+            <h6><i class="fas fa-exclamation-triangle me-2"></i>Processing Errors:</h6>
+            <ul class="mb-0">
+                {% for error in stats.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- References List -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list-ol me-2"></i>Sorted References ({{ references|length }})</h5>
+                <button class="btn btn-sm btn-outline-primary" onclick="toggleViewMode()">
+                    <i class="fas fa-eye me-1"></i><span id="viewModeText">Compact View</span>
+                </button>
+            </div>
+            <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
+                <div id="referencesList">
+                    {% for reference in references %}
+                    <div class="reference-item" data-reference="{{ reference }}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="reference-text flex-grow-1" style="word-wrap: break-word;">
+                                <span class="reference-number text-muted me-2">{{ loop.index }}.</span>
+                                <span class="reference-content">{{ reference }}</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary copy-btn ms-2"
+                                onclick="copySingleReference(this)" title="Copy this reference">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Top Button -->
+        <button id="backToTop" class="btn btn-primary position-fixed"
+            style="bottom: 20px; right: 20px; display: none; z-index: 1000;" onclick="scrollToTop()">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Toast for Copy Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="copyToast" class="toast" role="alert">
+        <div class="toast-body">
+            <i class="fas fa-check text-success me-2"></i>
+            <span id="toastMessage">Copied to clipboard!</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let isCompactView = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Back to top button
+        window.addEventListener('scroll', function () {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+    });
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleViewMode() {
+        const referenceItems = document.querySelectorAll('.reference-item');
+        const viewModeText = document.getElementById('viewModeText');
+
+        isCompactView = !isCompactView;
+
+        referenceItems.forEach(item => {
+            if (isCompactView) {
+                item.style.padding = '8px';
+                item.style.margin = '5px 0';
+                item.style.fontSize = '0.9em';
+            } else {
+                item.style.padding = '15px';
+                item.style.margin = '10px 0';
+                item.style.fontSize = '1em';
+            }
+        });
+
+        viewModeText.textContent = isCompactView ? 'Expanded View' : 'Compact View';
+    }
+
+    function copySingleReference(button) {
+        const referenceItem = button.closest('.reference-item');
+        const referenceText = referenceItem.dataset.reference;
+
+        copyToClipboard(referenceText);
+        showToast('Reference copied to clipboard!');
+    }
+
+    function copyAllReferences() {
+        const format = document.getElementById('exportFormat').value;
+        const references = Array.from(document.querySelectorAll('.reference-item')).map(item => item.dataset.reference);
+
+        fetch('/api/export', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                references: references,
+                format: format
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                copyToClipboard(data.exported_text);
+                showToast(`All ${references.length} references copied in ${format} format!`);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error copying references', 'error');
+            });
+    }
+
+    function downloadReferences() {
+        const format = document.getElementById('exportFormat').value;
+        const references = Array.from(document.querySelectorAll('.reference-item')).map(item => item.dataset.reference);
+
+        fetch('/api/export', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                references: references,
+                format: format
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                const blob = new Blob([data.exported_text], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sorted_references_${format}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                showToast('File downloaded successfully!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error downloading file', 'error');
+            });
+    }
+
+    function copyToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text);
+        } else {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('copyToast');
+        const toastMessage = document.getElementById('toastMessage');
+
+        toastMessage.innerHTML = type === 'success'
+            ? `<i class="fas fa-check text-success me-2"></i>${message}`
+            : `<i class="fas fa-exclamation-triangle text-warning me-2"></i>${message}`;
+
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
+</script>
+{% endblock %}

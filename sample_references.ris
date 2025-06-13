@@ -1,0 +1,111 @@
+TY  - JOUR
+AU  - Smith, John A.
+AU  - Johnson, Mary B.
+TI  - Deep Learning Applications in Medical Image Analysis
+JO  - Journal of Medical Informatics
+VL  - 45
+IS  - 3
+SP  - 123
+EP  - 145
+PY  - 2023
+DO  - 10.1000/jmi.2023.123
+ER  - 
+
+TY  - CONF
+AU  - Zhang, Wei
+AU  - Chen, Li
+AU  - Wang, Ming
+TI  - Automated Thyroid Nodule Classification Using Convolutional Neural Networks
+BT  - Proceedings of Medical Image Computing and Computer Assisted Intervention
+SP  - 456
+EP  - 467
+PY  - 2022
+DO  - 10.1007/miccai.2022.456
+ER  - 
+
+TY  - BOOK
+AU  - Brown, Sarah
+TI  - Machine Learning in Healthcare: A Comprehensive Guide
+PB  - Academic Press
+CY  - Boston
+PY  - 2024
+SN  - 978-0123456789
+ER  - 
+
+TY  - JOUR
+AU  - Anderson, Robert
+AU  - Wilson, Jennifer
+TI  - Ensemble Methods for Histopathological Image Classification
+JO  - Nature Machine Intelligence
+VL  - 8
+IS  - 2
+SP  - 78
+EP  - 92
+PY  - 2023
+DO  - 10.1038/nmi.2023.078
+ER  - 
+
+TY  - THES
+AU  - Garcia, Maria
+TI  - Transfer Learning Approaches for Medical Image Segmentation
+PB  - Stanford University
+PY  - 2022
+ER  - 
+
+TY  - JOUR
+AU  - Kim, Sung-Ho
+AU  - Lee, Hyun-Jin
+AU  - Park, Ji-Won
+TI  - Real-time Object Detection in Ultrasound Images Using YOLO Architecture
+JO  - IEEE Transactions on Medical Imaging
+VL  - 42
+IS  - 7
+SP  - 1234
+EP  - 1248
+PY  - 2023
+DO  - 10.1109/TMI.2023.1234
+ER  - 
+
+TY  - CONF
+AU  - Miller, David
+AU  - Davis, Emma
+TI  - Attention Mechanisms in Vision Transformers for Pathology
+BT  - International Conference on Medical Image Computing
+SP  - 789
+EP  - 801
+PY  - 2024
+ER  - 
+
+TY  - JOUR
+AU  - Taylor, Michael
+AU  - White, Lisa
+AU  - Green, Thomas
+AU  - Black, Susan
+TI  - Multi-modal Fusion for Cancer Diagnosis: A Systematic Review
+JO  - Medical Image Analysis
+VL  - 89
+SP  - 102456
+PY  - 2023
+DO  - 10.1016/j.media.2023.102456
+ER  - 
+
+TY  - BOOK
+AU  - Thompson, James
+AU  - Clark, Patricia
+TI  - Computer Vision Techniques in Medical Imaging
+PB  - Springer
+CY  - New York
+PY  - 2023
+SN  - 978-9876543210
+ER  - 
+
+TY  - JOUR
+AU  - Ahmed, Hassan
+AU  - Ibrahim, Fatima
+TI  - Federated Learning for Privacy-Preserving Medical Image Analysis
+JO  - Journal of Biomedical Informatics
+VL  - 128
+SP  - 104567
+PY  - 2024
+DO  - 10.1016/j.jbi.2024.104567
+ER  - 
