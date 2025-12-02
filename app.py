@@ -500,5 +500,20 @@ def export_ris(references: List[Dict]) -> str:
     
     return '\n\n'.join(ris_entries)
 
+@app.route('/about')
+def about():
+    """About page"""
+    return render_template('about.html')
+
+@app.route('/terms')
+def terms():
+    """Terms of Service page"""
+    return render_template('terms.html')
+
+@app.route('/privacy')
+def privacy():
+    """Privacy Policy page"""
+    return render_template('privacy.html')
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5030) 

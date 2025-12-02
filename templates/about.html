@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}About — Reference Manager{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">About Reference Manager</h1>
+    
+    <div style="line-height: 1.8; color: var(--text);">
+        <p style="margin-bottom: 1.5rem; font-size: 1.0625rem;">
+            Reference Manager is a modern web application designed to help researchers, students, and academics 
+            efficiently manage and format their academic references. Built with simplicity and speed in mind, 
+            it streamlines the process of organizing citations from multiple sources.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">Features</h2>
+        <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem; line-height: 2;">
+            <li><strong>Multiple Citation Styles</strong>: Support for APA, MLA, Chicago, Harvard, and IEEE formats</li>
+            <li><strong>URL-Based Extraction</strong>: Automatically extract metadata from arXiv, DOI, PubMed, and web pages</li>
+            <li><strong>RIS File Support</strong>: Upload and process Research Information Systems files</li>
+            <li><strong>Duplicate Detection</strong>: Automatically identify and remove duplicate references</li>
+            <li><strong>Multiple Export Formats</strong>: Export as plain text, numbered list, Markdown, BibTeX, or RIS</li>
+            <li><strong>Real-time Search</strong>: Quickly find references in your collection</li>
+            <li><strong>Individual Management</strong>: Copy or delete specific references</li>
+        </ul>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">How It Works</h2>
+        <p style="margin-bottom: 1rem;">
+            Reference Manager processes your RIS files or extracts metadata from URLs, formats them according 
+            to your chosen citation style, and organizes them alphabetically. All processing happens in your 
+            browser session, ensuring your data remains private and secure.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">Technology</h2>
+        <p style="margin-bottom: 1rem;">
+            Built with Flask, Python, and modern web technologies. The application uses APIs from arXiv, 
+            CrossRef, and PubMed to fetch accurate metadata, ensuring high-quality citation formatting.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">Open Source</h2>
+        <p style="margin-bottom: 1.5rem;">
+            Reference Manager is open source and available under the MIT License. Contributions and 
+            feedback are welcome.
+        </p>
+    </div>
+</div>
+{% endblock %}

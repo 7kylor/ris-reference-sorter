@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy — Reference Manager{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Privacy Policy</h1>
+    
+    <div style="line-height: 1.8; color: var(--text);">
+        <p style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.875rem;">
+            Last updated: December 2, 2025
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">1. Data Collection</h2>
+        <p style="margin-bottom: 1.5rem;">
+            Reference Manager is designed with privacy in mind. We do not collect, store, or transmit your 
+            reference data to any external servers. All processing happens locally in your browser session. 
+            Your references are stored only in your browser's session storage and are cleared when you close 
+            your browser or clear your session data.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">2. External API Usage</h2>
+        <p style="margin-bottom: 1rem;">
+            When you add references via URL, Reference Manager may make requests to external APIs to fetch 
+            metadata:
+        </p>
+        <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem; line-height: 2;">
+            <li><strong>arXiv API</strong>: For arXiv paper metadata</li>
+            <li><strong>CrossRef API</strong>: For DOI resolution and metadata</li>
+            <li><strong>PubMed E-utilities API</strong>: For PubMed article metadata</li>
+        </ul>
+        <p style="margin-bottom: 1.5rem;">
+            These requests are made directly from your browser to the respective APIs. We do not intercept, 
+            store, or log these requests. The URLs you provide are sent only to the relevant API service 
+            for metadata extraction.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">3. Session Storage</h2>
+        <p style="margin-bottom: 1.5rem;">
+            Reference Manager uses browser session storage to temporarily store your references while you use 
+            the application. This data is:
+        </p>
+        <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem; line-height: 2;">
+            <li>Stored only in your browser</li>
+            <li>Not transmitted to any external servers</li>
+            <li>Cleared when you close your browser</li>
+            <li>Accessible only to you</li>
+        </ul>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">4. Cookies and Tracking</h2>
+        <p style="margin-bottom: 1.5rem;">
+            Reference Manager uses session cookies only for maintaining your session state. We do not use 
+            tracking cookies, analytics, or any third-party tracking services. We do not collect information 
+            about your browsing behavior or use cookies for advertising purposes.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">5. File Uploads</h2>
+        <p style="margin-bottom: 1.5rem;">
+            When you upload RIS files, they are processed entirely in memory. Files are not saved to disk 
+            or transmitted to external servers. The file contents are parsed and immediately discarded after 
+            processing.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">6. Third-Party Services</h2>
+        <p style="margin-bottom: 1.5rem;">
+            Reference Manager may be hosted on third-party platforms (such as Vercel, Heroku, or similar). 
+            These platforms may collect standard server logs (IP addresses, request timestamps) as part of 
+            their normal operation. We do not have access to or control over these logs. Please refer to 
+            the hosting platform's privacy policy for details.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">7. Data Security</h2>
+        <p style="margin-bottom: 1.5rem;">
+            Since Reference Manager processes all data locally in your browser, your reference data never 
+            leaves your device. This provides a high level of security and privacy. However, you are 
+            responsible for maintaining the security of your own device and browser.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">8. Children's Privacy</h2>
+        <p style="margin-bottom: 1.5rem;">
+            Reference Manager is not intended for use by children under the age of 13. We do not knowingly 
+            collect personal information from children. If you are a parent or guardian and believe your 
+            child has provided us with personal information, please contact us.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">9. Changes to Privacy Policy</h2>
+        <p style="margin-bottom: 1.5rem;">
+            We may update this Privacy Policy from time to time. We will notify you of any changes by 
+            posting the new Privacy Policy on this page and updating the "Last updated" date.
+        </p>
+
+        <h2 style="font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">10. Contact</h2>
+        <p style="margin-bottom: 1.5rem;">
+            If you have any questions about this Privacy Policy, please review the project documentation 
+            or open an issue on the project repository.
+        </p>
+    </div>
+</div>
+{% endblock %}
