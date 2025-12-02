@@ -24,28 +24,81 @@
 {% endblock %}
 
 {% block content %}
-<div style="width: 100%; margin: 0 auto;">
- 
-
-    <div class="card" style="margin-bottom: 1rem;">
-        <div class="card-body">
-            <div class="compact-form">
-                <input type="url" id="urlInput" placeholder="Paste URL (arXiv, DOI, or any webpage)" style="margin: 0;">
-                <button class="btn btn-primary" onclick="addUrl()">Add</button>
-            </div>
+<div class="home-container">
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Organize Your Research References</h1>
+            <p class="hero-subtitle">Import, sort, format, and export academic references with ease. Support for RIS files, arXiv, DOI, PubMed, and web pages.</p>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <h3 class="feature-title">Multiple Formats</h3>
+            <p class="feature-description">Upload RIS files or extract citations from URLs</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+            </div>
+            <h3 class="feature-title">5 Citation Styles</h3>
+            <p class="feature-description">APA, MLA, Chicago, Harvard, and IEEE</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+            </div>
+            <h3 class="feature-title">Auto Sort & Dedupe</h3>
+            <p class="feature-description">Automatically sorted and duplicates removed</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <h3 class="feature-title">Export Options</h3>
+            <p class="feature-description">Text, Markdown, BibTeX, RIS, and more</p>
+        </div>
+    </div>
+
+    <div class="action-section">
+        <div class="action-card">
+            <h2 class="action-title">Add Reference from URL</h2>
+            <p class="action-description">Paste a URL from arXiv, DOI, PubMed, or any webpage to automatically extract citation information</p>
+            <div class="url-input-wrapper">
+                <div class="compact-form">
+                    <input type="url" id="urlInput" placeholder="https://arxiv.org/abs/..." class="url-input">
+                    <button class="btn btn-primary btn-large" onclick="addUrl()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add Reference
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-card">
+            <h2 class="action-title">Upload RIS Files</h2>
+            <p class="action-description">Drag and drop RIS files or click to browse. Multiple files supported.</p>
             <form action="{{ url_for('upload_files') }}" method="post" enctype="multipart/form-data" id="uploadForm">
                 <div class="drag-zone" id="dragZone">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="drag-icon">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                     </svg>
-                    <div style="font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">Drop RIS files here</div>
-                    <div style="color: var(--text-light); font-size: 0.75rem; margin-bottom: 0.75rem;">or click to browse</div>
-                    <button type="button" class="btn btn-sm btn-primary" onclick="document.getElementById('fileInput').click()">Choose Files</button>
+                    <div class="drag-text-primary">Drop RIS files here</div>
+                    <div class="drag-text-secondary">or click to browse</div>
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('fileInput').click()">Choose Files</button>
                     <input type="file" id="fileInput" name="files" multiple accept=".ris,.txt" style="display: none;">
                 </div>
 
@@ -53,31 +106,41 @@
                     <ul class="file-list" id="fileListItems"></ul>
                 </div>
 
-                <div id="options" class="hidden" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                    <div class="inline-group" style="margin-bottom: 0.75rem;">
-                        <select name="citation_style" id="citationStyle" style="width: auto; min-width: 150px;">
-                            <option value="apa" {% if citation_style == 'apa' %}selected{% endif %}>APA</option>
-                            <option value="mla" {% if citation_style == 'mla' %}selected{% endif %}>MLA</option>
-                            <option value="chicago" {% if citation_style == 'chicago' %}selected{% endif %}>Chicago</option>
-                            <option value="harvard" {% if citation_style == 'harvard' %}selected{% endif %}>Harvard</option>
-                            <option value="ieee" {% if citation_style == 'ieee' %}selected{% endif %}>IEEE</option>
-                        </select>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8125rem;">
-                            <input type="radio" name="merge_mode" value="new" checked>
-                            <span>New</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8125rem;">
-                            <input type="radio" name="merge_mode" value="merge">
-                            <span>Merge</span>
-                        </label>
+                <div id="options" class="hidden" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                    <div class="options-group">
+                        <div class="option-item">
+                            <label class="option-label">Citation Style</label>
+                            <select name="citation_style" id="citationStyle" class="style-select">
+                                <option value="apa" {% if citation_style == 'apa' %}selected{% endif %}>APA</option>
+                                <option value="mla" {% if citation_style == 'mla' %}selected{% endif %}>MLA</option>
+                                <option value="chicago" {% if citation_style == 'chicago' %}selected{% endif %}>Chicago</option>
+                                <option value="harvard" {% if citation_style == 'harvard' %}selected{% endif %}>Harvard</option>
+                                <option value="ieee" {% if citation_style == 'ieee' %}selected{% endif %}>IEEE</option>
+                            </select>
+                        </div>
+                        <div class="option-item">
+                            <label class="option-label">Mode</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="merge_mode" value="new" checked>
+                                    <span>New Collection</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="merge_mode" value="merge">
+                                    <span>Merge with Existing</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-success" id="uploadBtn" style="width: 100%;">Process Files</button>
+                    <button type="submit" class="btn btn-success btn-large" id="uploadBtn" style="width: 100%; margin-top: 1rem;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; margin-right: 0.5rem;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                        Process Files
+                    </button>
                 </div>
             </form>
-         <div style="text-align: center; margin-bottom: 2rem; margin-top: 2rem;">
-        <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem;">Reference Manager</h1>
-        <p style="color: var(--text-light); font-size: 0.8125rem;">Upload RIS files or add URLs</p>
-    </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -124,12 +187,16 @@
     function addUrl() {
         const urlInput = document.getElementById('urlInput');
         const url = urlInput.value.trim();
-        const style = document.getElementById('citationStyle')?.value || 'apa';
-        const addBtn = document.querySelector('.compact-form .btn-primary');
+        const styleSelect = document.getElementById('citationStyle');
+        const style = styleSelect?.value || 'apa';
+        const addBtn = document.querySelector('.url-input-wrapper .btn-primary');
 
         if (!url) { showToast('Enter a URL'); return; }
 
-        if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Fetching...'; }
+        if (addBtn) {
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px; animation: spin 1s linear infinite;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Fetching...';
+        }
         urlInput.disabled = true;
 
         fetch('/api/add_url', {
@@ -147,13 +214,19 @@
                 setTimeout(() => window.location.reload(), 1200);
             } else {
                 showToast('Error: ' + (data.error || 'Failed'));
-                if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Add'; }
+                if (addBtn) {
+                    addBtn.disabled = false;
+                    addBtn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Add Reference';
+                }
                 urlInput.disabled = false;
             }
         })
         .catch(() => {
             showToast('Error fetching data');
-            if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Add'; }
+            if (addBtn) {
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Add Reference';
+            }
             urlInput.disabled = false;
         });
     }
