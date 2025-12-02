@@ -7,28 +7,22 @@ Imports RIS files, sorts references, and allows copying of sorted results
 import os
 import io
 import json
+from typing import Dict, List, Union
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session
 from werkzeug.utils import secure_filename
 import rispy
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-
-# Ensure upload folder exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'ris', 'txt'}
 
-# Global storage for current session references
-current_references = []
-
-def allowed_file(filename):
+def allowed_file(filename: str) -> bool:
     """Check if file has allowed extension"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def format_reference(entry):
+def format_reference(entry: Dict[str, Union[str, List[str], int]]) -> str:
     """Convert RIS entry to formatted citation"""
     try:
         # Extract key fields
@@ -90,7 +84,7 @@ def format_reference(entry):
         # Fallback formatting
         return f"Error formatting reference: {str(e)}"
 
-def get_sort_key(citation):
+def get_sort_key(citation: str) -> str:
     """Extract first author's last name for sorting"""
     try:
         # Split by comma to get first author
@@ -102,13 +96,20 @@ def get_sort_key(citation):
     except:
         return citation[:20]  # Fallback
 
-def parse_ris_file(file_path):
-    """Parse RIS file and return list of references"""
+def parse_ris_file(file_content: bytes, encoding: str = 'utf-8') -> list[str]:
+    """Parse RIS file content and return list of references"""
     references = []
     
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            entries = rispy.load(f)
+        # Decode file content
+        if isinstance(file_content, bytes):
+            text_content = file_content.decode(encoding)
+        else:
+            text_content = file_content
+            
+        # Create StringIO object for rispy
+        file_like = io.StringIO(text_content)
+        entries = rispy.load(file_like)
             
         for entry in entries:
             formatted_ref = format_reference(entry)
@@ -117,16 +118,20 @@ def parse_ris_file(file_path):
                 
     except UnicodeDecodeError:
         # Try different encodings
-        try:
-            with open(file_path, 'r', encoding='latin-1') as f:
-                entries = rispy.load(f)
+        if encoding != 'latin-1':
+            try:
+                text_content = file_content.decode('latin-1') if isinstance(file_content, bytes) else file_content
+                file_like = io.StringIO(text_content)
+                entries = rispy.load(file_like)
                 
-            for entry in entries:
-                formatted_ref = format_reference(entry)
-                if formatted_ref and formatted_ref.strip():
-                    references.append(formatted_ref)
-        except Exception as e:
-            raise Exception(f"Could not parse RIS file: {str(e)}")
+                for entry in entries:
+                    formatted_ref = format_reference(entry)
+                    if formatted_ref and formatted_ref.strip():
+                        references.append(formatted_ref)
+            except Exception as e:
+                raise Exception(f"Could not parse RIS file: {str(e)}")
+        else:
+            raise Exception(f"Could not parse RIS file: encoding error")
     except Exception as e:
         raise Exception(f"Error parsing RIS file: {str(e)}")
     
@@ -140,7 +145,8 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_files():
     """Handle file upload and process RIS files"""
-    global current_references
+    # Get current references from session
+    current_references = session.get('references', [])
     
     if 'files' not in request.files:
         flash('No files selected')
@@ -157,21 +163,19 @@ def upload_files():
     processed_files = []
     errors = []
     
-    # Process each uploaded file
+    # Process each uploaded file (in-memory for serverless compatibility)
     for file in files:
         if file and file.filename and allowed_file(file.filename):
             try:
                 filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
                 
-                # Parse the RIS file
-                references = parse_ris_file(file_path)
+                # Read file content into memory
+                file_content = file.read()
+                
+                # Parse the RIS file from memory
+                references = parse_ris_file(file_content)
                 new_references.extend(references)
                 processed_files.append(filename)
-                
-                # Clean up uploaded file
-                os.remove(file_path)
                 
             except Exception as e:
                 errors.append(f"Error processing {file.filename}: {str(e)}")
@@ -198,8 +202,8 @@ def upload_files():
     # Sort references alphabetically by first author
     sorted_refs = sorted(unique_refs, key=lambda x: get_sort_key(x).lower())
     
-    # Update global storage
-    current_references = sorted_refs
+    # Update session storage
+    session['references'] = sorted_refs
     
     # Statistics
     stats = {
@@ -219,15 +223,14 @@ def upload_files():
 @app.route('/clear', methods=['POST'])
 def clear_references():
     """Clear all current references"""
-    global current_references
-    current_references = []
+    session.pop('references', None)
     flash('All references cleared successfully')
     return redirect(url_for('index'))
 
 @app.route('/current_stats')
 def current_stats():
     """Get current reference statistics"""
-    global current_references
+    current_references = session.get('references', [])
     return jsonify({
         'count': len(current_references),
         'has_references': len(current_references) > 0
