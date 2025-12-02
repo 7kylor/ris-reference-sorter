@@ -46,7 +46,7 @@ fi
 echo ""
 echo "Setup complete! Starting the application..."
 echo ""
-echo "The application will be available at: http://localhost:5000"
+echo "The application will be available at: http://localhost:5030"
 echo "Press Ctrl+C to stop the application"
 echo ""
 

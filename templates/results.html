@@ -1,309 +1,262 @@
 {% extends "base.html" %}
 
-{% block title %}Sorted References - RIS Reference Sorter{% endblock %}
+{% block title %}References — Reference Manager{% endblock %}
+
+{% block nav_stats %}
+<div class="nav-stats">
+    <div class="nav-stat">
+        <span class="nav-stat-value">{{ stats.unique_references }}</span>
+        <span>total</span>
+    </div>
+    <div class="nav-stat">
+        <span class="nav-stat-value">{{ stats.total_files }}</span>
+        <span>files</span>
+    </div>
+    <div class="nav-stat">
+        <span class="nav-stat-value">{{ stats.duplicates_removed }}</span>
+        <span>duplicates</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block nav_actions %}
+<div class="nav-search">
+    <input type="text" id="navSearchInput" placeholder="Search..." oninput="filterReferences()">
+</div>
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1><i class="fas fa-check-circle text-success me-2"></i>References Processed Successfully</h1>
-            <div>
-                <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
-                    <i class="fas fa-plus me-2"></i>Add More Files
-                </a>
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-body" style="padding: 0.75rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <input type="url" id="urlInput" placeholder="Add URL (arXiv, DOI, or webpage)" style="flex: 1; min-width: 200px; margin: 0;">
+                <button class="btn btn-primary" onclick="addUrl()">Add</button>
+                <select id="citationStyleSelect" onchange="changeCitationStyle()" style="width: auto; min-width: 90px; margin: 0;">
+                    <option value="apa" {% if citation_style == 'apa' %}selected{% endif %}>APA</option>
+                    <option value="mla" {% if citation_style == 'mla' %}selected{% endif %}>MLA</option>
+                    <option value="chicago" {% if citation_style == 'chicago' %}selected{% endif %}>Chicago</option>
+                    <option value="harvard" {% if citation_style == 'harvard' %}selected{% endif %}>Harvard</option>
+                    <option value="ieee" {% if citation_style == 'ieee' %}selected{% endif %}>IEEE</option>
+                </select>
+                <select id="exportFormat" style="width: auto; min-width: 90px; margin: 0;">
+                    <option value="text">Text</option>
+                    <option value="numbered">Numbered</option>
+                    <option value="markdown">Markdown</option>
+                    <option value="bibtex">BibTeX</option>
+                    <option value="ris">RIS</option>
+                </select>
+                <button class="btn btn-sm btn-success" onclick="copyAll()">Copy</button>
+                <button class="btn btn-sm btn-primary" onclick="download()">Download</button>
                 <form action="{{ url_for('clear_references') }}" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-outline-danger"
-                        onclick="return confirm('Are you sure you want to clear all references and start fresh?')">
-                        <i class="fas fa-trash me-1"></i>Clear All
-                    </button>
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Clear all?')">Clear</button>
                 </form>
             </div>
         </div>
+    </div>
 
-        <!-- Operation Mode Alert -->
-        {% if stats.operation_mode == 'merged' %}
-        <div class="alert alert-success mb-4">
-            <h6 class="mb-2"><i class="fas fa-merge me-2"></i>References Merged Successfully!</h6>
-            <p class="mb-0">
-                Added <strong>{{ stats.new_references_count }}</strong> new references to your existing collection of
-                <strong>{{ stats.existing_references_count }}</strong> references.
-                Total unique references: <strong>{{ stats.unique_references }}</strong>
-            </p>
-        </div>
-        {% else %}
-        <div class="alert alert-info mb-4">
-            <h6 class="mb-2"><i class="fas fa-upload me-2"></i>New Reference Collection Created!</h6>
-            <p class="mb-0">
-                Processed <strong>{{ stats.new_references_count }}</strong> references from
-                <strong>{{ stats.total_files }}</strong> file{{ 's' if stats.total_files > 1 else '' }}.
-            </p>
-        </div>
-        {% endif %}
+    {% if stats.operation_mode == 'merged' %}
+    <div class="alert alert-success" style="margin-bottom: 1rem;">
+        Added <strong>{{ stats.new_references_count }}</strong> new. Total: <strong>{{ stats.unique_references }}</strong>
+    </div>
+    {% endif %}
 
-        <!-- Statistics Card -->
-        <div class="card stats-card mb-4">
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3">
-                        <h3 class="mb-1">{{ stats.total_files }}</h3>
-                        <p class="mb-0"><i class="fas fa-file-alt me-1"></i>Files Processed</p>
-                    </div>
-                    <div class="col-md-3">
-                        <h3 class="mb-1">{{ stats.unique_references }}</h3>
-                        <p class="mb-0"><i class="fas fa-list me-1"></i>Total References</p>
-                    </div>
-                    <div class="col-md-3">
-                        <h3 class="mb-1">{{ stats.duplicates_removed }}</h3>
-                        <p class="mb-0"><i class="fas fa-trash me-1"></i>Duplicates Removed</p>
-                    </div>
-                    <div class="col-md-3">
-                        <h3 class="mb-1">{{ stats.new_references_count }}</h3>
-                        <p class="mb-0"><i class="fas fa-plus me-1"></i>{% if stats.operation_mode == 'merged' %}Added{%
-                            else %}New{% endif %}</p>
-                    </div>
-                </div>
+    <div id="referencesList">
+        {% for reference in references %}
+        <div class="reference-item" data-reference="{{ reference }}" data-index="{{ loop.index0 }}">
+            <div class="reference-content">
+                <span class="reference-number">{{ loop.index }}.</span>
+                <span>{{ reference }}</span>
             </div>
-        </div>
-
-        <!-- Export Controls -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-download me-2"></i>Export Options</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label for="exportFormat" class="form-label">Export Format:</label>
-                        <select id="exportFormat" class="form-select">
-                            <option value="text">Plain Text (Double Line Breaks)</option>
-                            <option value="numbered">Numbered List</option>
-                            <option value="markdown">Markdown Format</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 d-flex align-items-end">
-                        <button class="btn btn-success me-2" onclick="copyAllReferences()">
-                            <i class="fas fa-copy me-1"></i>Copy All References
-                        </button>
-                        <button class="btn btn-info" onclick="downloadReferences()">
-                            <i class="fas fa-download me-1"></i>Download as File
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Processed Files Info -->
-        {% if stats.processed_files %}
-        <div class="card mb-4">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Processed Files</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for file in stats.processed_files %}
-                    <div class="col-md-4 mb-2">
-                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ file }}</span>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Errors -->
-        {% if stats.errors %}
-        <div class="alert alert-warning">
-            <h6><i class="fas fa-exclamation-triangle me-2"></i>Processing Errors:</h6>
-            <ul class="mb-0">
-                {% for error in stats.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        <!-- References List -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-list-ol me-2"></i>Sorted References ({{ references|length }})</h5>
-                <button class="btn btn-sm btn-outline-primary" onclick="toggleViewMode()">
-                    <i class="fas fa-eye me-1"></i><span id="viewModeText">Compact View</span>
+            <div style="display: flex; gap: 0.375rem; flex-shrink: 0;">
+                <button class="btn btn-sm btn-outline" onclick="copySingle(this)" title="Copy">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="deleteSingle(this, {{ loop.index0 }})" title="Delete" style="color: var(--danger);">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
                 </button>
             </div>
-            <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
-                <div id="referencesList">
-                    {% for reference in references %}
-                    <div class="reference-item" data-reference="{{ reference }}">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="reference-text flex-grow-1" style="word-wrap: break-word;">
-                                <span class="reference-number text-muted me-2">{{ loop.index }}.</span>
-                                <span class="reference-content">{{ reference }}</span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-secondary copy-btn ms-2"
-                                onclick="copySingleReference(this)" title="Copy this reference">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
         </div>
-
-        <!-- Back to Top Button -->
-        <button id="backToTop" class="btn btn-primary position-fixed"
-            style="bottom: 20px; right: 20px; display: none; z-index: 1000;" onclick="scrollToTop()">
-            <i class="fas fa-arrow-up"></i>
-        </button>
+        {% endfor %}
     </div>
-</div>
 
-<!-- Toast for Copy Notifications -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="copyToast" class="toast" role="alert">
-        <div class="toast-body">
-            <i class="fas fa-check text-success me-2"></i>
-            <span id="toastMessage">Copied to clipboard!</span>
-        </div>
+    <div style="text-align: center; margin-top: 1.5rem; color: var(--text-light); font-size: 0.75rem;">
+        Showing <span id="referenceCount">{{ references|length }}</span> of {{ references|length }}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    let isCompactView = false;
+    const referenceData = {{ reference_data|tojson|safe if reference_data else '[]' }};
+    const currentStyle = '{{ citation_style }}';
+    const styleNames = { 'apa': 'APA', 'mla': 'MLA', 'chicago': 'Chicago', 'harvard': 'Harvard', 'ieee': 'IEEE' };
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Back to top button
-        window.addEventListener('scroll', function () {
-            const backToTop = document.getElementById('backToTop');
-            if (window.pageYOffset > 300) {
-                backToTop.style.display = 'block';
+    function filterReferences() {
+        const term = document.getElementById('navSearchInput')?.value.toLowerCase() || '';
+        const items = document.querySelectorAll('.reference-item');
+        let visible = 0;
+        items.forEach(item => {
+            const text = item.querySelector('.reference-content').textContent.toLowerCase();
+            if (text.includes(term)) {
+                item.style.display = 'flex';
+                visible++;
             } else {
-                backToTop.style.display = 'none';
+                item.style.display = 'none';
             }
         });
+        document.getElementById('referenceCount').textContent = visible;
+    }
+
+    function changeCitationStyle() {
+        const style = document.getElementById('citationStyleSelect').value;
+        fetch('/api/change_style', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ style })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const list = document.getElementById('referencesList');
+                list.innerHTML = '';
+                data.references.forEach((ref, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'reference-item';
+                    item.setAttribute('data-reference', ref);
+                    item.setAttribute('data-index', i);
+                    item.innerHTML = `
+                        <div class="reference-content">
+                            <span class="reference-number">${i + 1}.</span>
+                            <span>${ref}</span>
+                        </div>
+                        <div style="display: flex; gap: 0.375rem; flex-shrink: 0;">
+                            <button class="btn btn-sm btn-outline" onclick="copySingle(this)" title="Copy">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="deleteSingle(this, ${i})" title="Delete" style="color: var(--danger);">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+                showToast(`Style: ${styleNames[style] || style.toUpperCase()}`);
+            }
+        })
+        .catch(() => showToast('Error'));
+    }
+
+    function copySingle(btn) {
+        const ref = btn.closest('.reference-item').querySelector('.reference-content').textContent.replace(/^\d+\.\s*/, '');
+        copyToClipboard(ref);
+    }
+
+    function deleteSingle(btn, index) {
+        if (!confirm('Delete this reference?')) return;
+        
+        fetch('/api/delete_reference', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ index })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                showToast('Error deleting');
+            }
+        })
+        .catch(() => showToast('Error'));
+    }
+
+    function copyAll() {
+        const format = document.getElementById('exportFormat').value;
+        const style = document.getElementById('citationStyleSelect').value;
+        fetch('/api/export', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference_data: referenceData, format, style })
+        })
+        .then(r => r.json())
+        .then(data => {
+            copyToClipboard(data.exported_text);
+            showToast('Copied');
+        })
+        .catch(() => showToast('Error'));
+    }
+
+    function download() {
+        const format = document.getElementById('exportFormat').value;
+        const style = document.getElementById('citationStyleSelect').value;
+        fetch('/api/export', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reference_data: referenceData, format, style })
+        })
+        .then(r => r.json())
+        .then(data => {
+            const ext = { text: 'txt', numbered: 'txt', markdown: 'md', bibtex: 'bib', ris: 'ris' }[format] || 'txt';
+            const blob = new Blob([data.exported_text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `references.${ext}`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Downloaded');
+        })
+        .catch(() => showToast('Error'));
+    }
+
+    function addUrl() {
+        const urlInput = document.getElementById('urlInput');
+        const url = urlInput.value.trim();
+        const style = document.getElementById('citationStyleSelect').value;
+        const addBtn = document.querySelector('.compact-form .btn-primary');
+
+        if (!url) { showToast('Enter a URL'); return; }
+
+        if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Fetching...'; }
+        urlInput.disabled = true;
+
+        fetch('/api/add_url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url, style })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                urlInput.value = '';
+                const meta = data.metadata || {};
+                const title = (meta.title || 'Citation').substring(0, 40);
+                showToast(`Added: ${title}${title.length >= 40 ? '...' : ''}`);
+                setTimeout(() => window.location.reload(), 1200);
+            } else {
+                showToast('Error: ' + (data.error || 'Failed'));
+                if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Add'; }
+                urlInput.disabled = false;
+            }
+        })
+        .catch(() => {
+            showToast('Error fetching data');
+            if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Add'; }
+            urlInput.disabled = false;
+        });
+    }
+
+    document.getElementById('urlInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addUrl(); }
     });
-
-    function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function toggleViewMode() {
-        const referenceItems = document.querySelectorAll('.reference-item');
-        const viewModeText = document.getElementById('viewModeText');
-
-        isCompactView = !isCompactView;
-
-        referenceItems.forEach(item => {
-            if (isCompactView) {
-                item.style.padding = '8px';
-                item.style.margin = '5px 0';
-                item.style.fontSize = '0.9em';
-            } else {
-                item.style.padding = '15px';
-                item.style.margin = '10px 0';
-                item.style.fontSize = '1em';
-            }
-        });
-
-        viewModeText.textContent = isCompactView ? 'Expanded View' : 'Compact View';
-    }
-
-    function copySingleReference(button) {
-        const referenceItem = button.closest('.reference-item');
-        const referenceText = referenceItem.dataset.reference;
-
-        copyToClipboard(referenceText);
-        showToast('Reference copied to clipboard!');
-    }
-
-    function copyAllReferences() {
-        const format = document.getElementById('exportFormat').value;
-        const references = Array.from(document.querySelectorAll('.reference-item')).map(item => item.dataset.reference);
-
-        fetch('/api/export', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                references: references,
-                format: format
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                copyToClipboard(data.exported_text);
-                showToast(`All ${references.length} references copied in ${format} format!`);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error copying references', 'error');
-            });
-    }
-
-    function downloadReferences() {
-        const format = document.getElementById('exportFormat').value;
-        const references = Array.from(document.querySelectorAll('.reference-item')).map(item => item.dataset.reference);
-
-        fetch('/api/export', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                references: references,
-                format: format
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                const blob = new Blob([data.exported_text], { type: 'text/plain' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `sorted_references_${format}.txt`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                showToast('File downloaded successfully!');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error downloading file', 'error');
-            });
-    }
-
-    function copyToClipboard(text) {
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text);
-        } else {
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-        }
-    }
-
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('copyToast');
-        const toastMessage = document.getElementById('toastMessage');
-
-        toastMessage.innerHTML = type === 'success'
-            ? `<i class="fas fa-check text-success me-2"></i>${message}`
-            : `<i class="fas fa-exclamation-triangle text-warning me-2"></i>${message}`;
-
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-    }
 </script>
 {% endblock %}
