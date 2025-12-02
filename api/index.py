@@ -1,5 +1,8 @@
 """
 Vercel serverless function entry point for Flask app
+
+Last Updated: December 2, 2025
+Python Version: 3.14+
 """
 import sys
 import os

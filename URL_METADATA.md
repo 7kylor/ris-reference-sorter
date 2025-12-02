@@ -2,6 +2,8 @@
 
 The application now includes comprehensive URL metadata extraction capabilities.
 
+**Last Updated**: December 2, 2025
+
 ## Supported URL Types
 
 ### 1. arXiv Papers
@@ -60,9 +62,9 @@ The application now includes comprehensive URL metadata extraction capabilities.
 The following dependencies are required (already in `requirements.txt`):
 
 ```
-requests==2.31.0
-beautifulsoup4==4.12.2
-lxml==4.9.3
+requests==2.32.5
+beautifulsoup4==4.14.3
+lxml==6.0.2
 ```
 
 Install with:

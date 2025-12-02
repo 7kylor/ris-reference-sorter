@@ -2,9 +2,11 @@
 
 This guide will help you test the RIS Reference Sorter application locally.
 
+**Last Updated**: December 2, 2025
+
 ## Prerequisites
 
-- Python 3.7 or higher
+- Python 3.14 or higher
 - pip (Python package installer)
 
 ## Quick Start

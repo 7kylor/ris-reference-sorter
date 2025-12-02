@@ -2,6 +2,8 @@
 
 A modern Flask web application for managing academic references. Process RIS files, extract citations from URLs (arXiv, DOI, PubMed, and web pages), format references in multiple citation styles, and export in various formats. Features a clean, minimal UI with real-time search and comprehensive reference management.
 
+**Last Updated**: December 2, 2025
+
 ## Features
 
 ### Core Functionality
@@ -68,7 +70,7 @@ Export references in multiple formats:
 
 ### Prerequisites
 
-- Python 3.7 or higher
+- Python 3.14 or higher
 - pip (Python package installer)
 
 ### Quick Setup
@@ -100,8 +102,8 @@ Export references in multiple formats:
 ### Alternative Installation with Virtual Environment
 
 ```bash
-# Create virtual environment
-python -m venv venv
+# Create virtual environment (requires Python 3.14+)
+python3.14 -m venv venv
 
 # Activate virtual environment
 # On macOS/Linux:
@@ -118,12 +120,14 @@ python app.py
 
 ### Using the Setup Script
 
-On macOS/Linux, you can use the provided setup script:
+On macOS/Linux, you can use the provided setup script (requires Python 3.14+):
 
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
+
+The setup script will automatically check for Python 3.14 or higher and install all dependencies.
 
 ## Usage
 
@@ -267,12 +271,12 @@ Default port is `5030` (configurable in `app.py`).
 
 ### Dependencies
 
-- **Flask** (3.0.3): Web framework
-- **rispy** (0.8.0): RIS file parsing library
-- **Werkzeug** (3.0.3): WSGI utilities for security
-- **requests** (2.31.0): HTTP library for API calls
-- **beautifulsoup4** (4.12.2): HTML parsing for web page metadata
-- **lxml** (4.9.3): XML/HTML parser backend
+- **Flask** (3.1.2): Web framework
+- **rispy** (0.10.0): RIS file parsing library
+- **Werkzeug** (3.1.4): WSGI utilities for security
+- **requests** (2.32.5): HTTP library for API calls
+- **beautifulsoup4** (4.14.3): HTML parsing for web page metadata
+- **lxml** (6.0.2): XML/HTML parser backend
 
 ### File Processing
 
@@ -396,7 +400,14 @@ For support or questions:
 
 ## Changelog
 
-### Version 2.0.0 (Current)
+### Version 2.1.0 (December 2, 2025)
+
+- **Updated Dependencies**: Upgraded to latest versions of all dependencies
+- **Python 3.14 Support**: Updated minimum Python version requirement to 3.14
+- **Enhanced UI/UX**: Improved home page design with hero section and feature highlights
+- **Performance Improvements**: Updated libraries for better performance and security
+
+### Version 2.0.0
 
 - **Major UI/UX Overhaul**: Complete redesign with minimal, clean interface
 - **URL Metadata Extraction**: Support for arXiv, DOI, PubMed, and generic web pages

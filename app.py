@@ -2,6 +2,9 @@
 """
 RIS Reference Sorter Flask Application
 Imports RIS files, sorts references, and allows copying of sorted results
+
+Last Updated: December 2, 2025
+Python Version: 3.14+
 """
 
 import os
